@@ -1,13 +1,22 @@
 // sketch-book.cpp : Defines the entry point for the application.
 //
 
+#include <windowsx.h> 
 #include "framework.h"
 #include "sketch-book.h"
 
 #define MAX_LOADSTRING 100
 
+class KeyState {
+public:
+    bool A, B, C, D, E, F, G, H, I, J, K, L, M;
+    bool N, O, P, Q, R, S, T, U, V, W, X, Y, Z;
+};
+
+KeyState keyState;
+
 class Vector2 {
-private:
+public:
     int x, y;
 
 public:
@@ -51,6 +60,9 @@ public:
         return Vector2(v.x * i, v.y * i);
     }
 };
+
+Vector2 preCursorPosition;
+Vector2 cursorPosition;
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -170,6 +182,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
+    case WM_CREATE:
+        cursorPosition = Vector2(-1, -1);
+        preCursorPosition = Vector2(-1, -1);
+        break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -191,14 +207,56 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
+
+            if (keyState.R) {
+                SelectObject(hdc, GetStockObject(DC_PEN));
+                SelectObject(hdc, GetStockObject(DC_BRUSH));
+                SetDCPenColor(hdc, RGB(255, 0, 0));
+                SetDCBrushColor(hdc, RGB(255, 0, 0));
+            }
+
+            if (
+                0 <= cursorPosition.x && 0 <= cursorPosition.y &&
+                0 <= preCursorPosition.x && 0 <= preCursorPosition.y
+                ) {
+                MoveToEx(hdc, cursorPosition.x, cursorPosition.y, NULL);
+                LineTo(hdc, preCursorPosition.x, preCursorPosition.y);
+            }
+
+            /*
+            SelectObject(hdc, GetStockObject(DC_PEN));
+            SelectObject(hdc, GetStockObject(DC_BRUSH));
+            SetDCPenColor(hdc, RGB(0, 0, 0));
+            SetDCBrushColor(hdc, RGB(0, 0, 0));
+            Ellipse(
+                hdc,
+                cursorPosition.x - 5,
+                cursorPosition.y - 5,
+                cursorPosition.x + 5,
+                cursorPosition.y + 5
+            );
+            */
+
             EndPaint(hWnd, &ps);
         }
         break;
-    case WM_KEYDOWN:
-        switch (wParam) {
-        case VK_RIGHT:
-            
+    case WM_LBUTTONUP:
+        cursorPosition = Vector2(-1, -1);
+        preCursorPosition = Vector2(-1, -1);
+        break;
+    case WM_MOUSEMOVE:
+        if (wParam & MK_LBUTTON) {
+            preCursorPosition.x = cursorPosition.x;
+            preCursorPosition.y = cursorPosition.y;
+
+            cursorPosition.x = GET_X_LPARAM(lParam);
+            cursorPosition.y = GET_Y_LPARAM(lParam);
+
+            InvalidateRect(hWnd, NULL, FALSE);
         }
+        break;
+    case 'R':
+        keyState.R = TRUE;
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
