@@ -6,11 +6,51 @@
 
 #define MAX_LOADSTRING 100
 
-int preXPositionOfCursor;
-int preYPositionOfCursor;
+class Vector2 {
+private:
+    int x, y;
 
-int xPositionOfCursor;
-int yPositionOfCursor;
+public:
+    Vector2(int x = 0, int y = 0) : x(x), y(y) {}
+
+    Vector2 operator++() {
+        x++; y++;
+        return *this;
+    }
+
+    Vector2 operator++(int dummy) {
+        Vector2 v = *this;
+        x++; y++;
+        return v;
+    }
+
+    Vector2 operator--() {
+        x--; y--;
+        return *this;
+    }
+
+    Vector2 operator--(int dummy) {
+        Vector2 v = *this;
+        x--; y--;
+        return v;
+    }
+
+    Vector2 operator+(const Vector2& v) {
+        return Vector2(x + v.x, y + v.y);
+    }
+    
+    int operator*(const Vector2& v) {
+        return (x * v.x + y * v.y);
+    }
+
+    Vector2 operator*(int i) {
+        return Vector2(x * i, y * i);
+    }
+
+    friend Vector2 operator*(int i, const Vector2& v) {
+        return Vector2(v.x * i, v.y * i);
+    }
+};
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -157,7 +197,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
         switch (wParam) {
         case VK_RIGHT:
-
+            
         }
         break;
     case WM_DESTROY:
